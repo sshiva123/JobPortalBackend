@@ -7,7 +7,9 @@ const CandidateSchema=mongoose.Schema({
     "email" : {type:String,required:true},
     "password":{type:String},
     "phone" : {type:String,required:true},
-    "skills":[{type:String}],
+    "skills":[
+      {"name":{type:String},"skills":[{type:String}]}
+    ],
     "resume":{type:String},
     "location":{
             "country":String,
