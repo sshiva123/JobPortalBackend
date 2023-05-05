@@ -77,7 +77,6 @@ const categoriesData = [
         "Communication",
         "Problem-solving",
         "Research",
-        "Writing",
         "Other"
       ],
     },
@@ -123,7 +122,7 @@ const categoriesData = [
     },
     {
       name: "Healthcare",
-      skills:["MBBS","MD","Doctor","Dentist","Nurse","EMT","Pharmacist","Therapist","Laboratory","Radiographers","Nurse","Other"]
+      skills:["MBBS","MD","Doctor","Dentist","EMT","Pharmacist","Therapist","Laboratory","Radiographers","Nurse","Other"]
       
     },
     {
