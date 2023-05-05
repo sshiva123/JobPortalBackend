@@ -12,7 +12,7 @@ const JobSchema=mongoose.Schema({
     },
     "category":{type:String,default:'Other'},
     "designation":{type:String},
-    "skills":[{"name":{type:String},"skills":[{type:String}]}],
+    "skills":[{"name":{type:String},"skills":[{type:String, unique:true }],unique:true}],
     "benefits":[{type:String}],
     "salary":{
         "currency":String,

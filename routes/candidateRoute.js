@@ -97,7 +97,7 @@ router.patch('/:id', async (req, res) => {
     if (!candidate) {
       return res.status(404).send({message:"Error"});
     }
-    res.send(candidate);
+    res.send({user:candidate,message:"Success"});
   } catch (error) {
     res.status(400).send(error);
   }
