@@ -2,7 +2,7 @@ const mongoose=require('mongoose');
 
 const JobSchema=mongoose.Schema({
     "title" :{type:String,required:true,minlength:1,maxlength:100},
-    "description":{type:String,required:true,maxlength:1000},
+    "description":{type:String,required:true,maxlength:2000},
     "type":{type:String},
     "job_posted_date" : {type:Date},
     "job_expiry_date":{type:Date},
@@ -12,7 +12,7 @@ const JobSchema=mongoose.Schema({
     },
     "category":{type:String,default:'Other'},
     "designation":{type:String},
-    "skills":[{"name":{type:String},"skills":[{type:String, unique:true }],unique:true}],
+    "skills":[{"name":{type:String},"skills":[{type:String }]}],
     "benefits":[{type:String}],
     "salary":{
         "currency":String,
@@ -24,5 +24,6 @@ const JobSchema=mongoose.Schema({
         "submission_date":Date,
         "application_status":String
       }],
+      "jobViews":{type:Number}
 })
 module.exports=mongoose.model('Job',JobSchema);

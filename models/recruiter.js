@@ -8,8 +8,9 @@ const RecruiterSchema=mongoose.Schema({
     "phone" : {type:Number,required:true},
     "location":{
         "country":String,
-},
-    "company":{type:String}
+    },
+    "company":{type:String},
+    "displayPicture":{type:String}
    
     
 })
