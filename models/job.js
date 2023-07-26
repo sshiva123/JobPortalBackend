@@ -21,8 +21,8 @@ const JobSchema=mongoose.Schema({
     "job_applications": [{
         "applicant_id":String,
         "description":String,
-        "submission_date":Date,
-        "application_status":String
+        "submission_date":{type:Date,default:Date.now()},
+        "application_status":{type:String,default:'Pending'}
       }],
       "jobViews":{type:Number}
 })

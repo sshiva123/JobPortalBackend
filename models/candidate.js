@@ -8,12 +8,20 @@ const CandidateSchema=mongoose.Schema({
     "password":{type:String},
     "phone" : {type:String,required:true},
     "skills":[
-      {"name":{type:String,unique:true},"skills":[{type:String,unique:true}]}
+      {"name":{type:String},"skills":[{type:String}]}
     ],
     "resume":{type:String},
     "location":{
             "country":String,
     },
+    "savedJobs":[{
+      type:String,
+           
+    }],
+    "appliedJobs":[{
+      type:String,
+      
+    }],
     "experience": [{
         "title": String,
         "company": String,
