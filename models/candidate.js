@@ -7,24 +7,29 @@ const CandidateSchema=mongoose.Schema({
     "email" : {type:String,required:true},
     "password":{type:String},
     "phone" : {type:String,required:true},
-    "skills":[{type:String}],
+    "skills":[
+      {"name":{type:String},"skills":[{type:String}]}
+    ],
     "resume":{type:String},
     "location":{
             "country":String,
     },
+    "savedJobs":[{
+      type:String,
+           
+    }],
+    "appliedJobs":[{
+      type:String,
+      
+    }],
     "experience": [{
         "title": String,
-        "company": String,
-        "fromDate": Date,
-        "toDate": Date,
-        "description": String
+        "years": String,
+        
       }],
       "education": [{
         "degree": String,
-        "fieldOfStudy": String,
-        "fromDate": Date,
-        "toDate": Date,
-        "description": String
+        "obtained":String
       }],
 })
 module.exports=mongoose.model('Candidate',CandidateSchema);

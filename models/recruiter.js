@@ -8,8 +8,9 @@ const RecruiterSchema=mongoose.Schema({
     "phone" : {type:Number,required:true},
     "location":{
         "country":String,
-},
-    "company":{type:String}
+    },
+    "company":{type:String},
+    "displayPicture":{type:String,default:"https://inkbotdesign.com/wp-content/uploads/2012/09/Google-Logo-Design.jpg"}
    
     
 })
