@@ -73,7 +73,6 @@ const categoriesData = [
      "UI/UX Design",
      "Illustration",
      "Photography",
-     "Video Editing",
      "Animation",
      "Creative Thinking",
      "Visual Arts",

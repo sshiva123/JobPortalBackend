@@ -24,17 +24,12 @@ const CandidateSchema=mongoose.Schema({
     }],
     "experience": [{
         "title": String,
-        "company": String,
-        "fromDate": Date,
-        "toDate": Date,
-        "description": String
+        "years": String,
+        
       }],
       "education": [{
         "degree": String,
-        "fieldOfStudy": String,
-        "fromDate": Date,
-        "toDate": Date,
-        "description": String
+        "obtained":String
       }],
 })
 module.exports=mongoose.model('Candidate',CandidateSchema);

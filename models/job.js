@@ -4,7 +4,7 @@ const JobSchema=mongoose.Schema({
     "title" :{type:String,required:true,minlength:1,maxlength:100},
     "description":{type:String,required:true,maxlength:2000},
     "type":{type:String},
-    "job_posted_date" : {type:Date},
+    "job_posted_date" : {type:Date,default:Date.now()},
     "job_expiry_date":{type:Date},
     "company_id":{type:String},
     "location":{
@@ -24,6 +24,13 @@ const JobSchema=mongoose.Schema({
         "submission_date":{type:Date,default:Date.now()},
         "application_status":{type:String,default:'Pending'}
       }],
-      "jobViews":{type:Number}
+      "jobViews":{type:Number,default:0}
 })
+JobSchema.index({
+    title: 'text',
+    description: 'text',
+    type: 'text',
+    category: 'text',
+    designation: 'text'
+});
 module.exports=mongoose.model('Job',JobSchema);

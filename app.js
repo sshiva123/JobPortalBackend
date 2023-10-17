@@ -73,7 +73,7 @@ io.on("connection",(socket)=>{
     }
   };
  const handleSelfMessage=async()=>{
-  const newMessage=new Message({conversationId:'6463838d528c168ab4029939',sender:'6463833b528c168ab402992d',content:'Paise ki kami nhi h... kati chaiyo?'});
+  const newMessage=new Message({conversationId:'6463838d528c168ab4029939',sender:'6463833b528c168ab402992d',content:'This is a test message.'});
   const saved=await newMessage.save().then(async data=>{
     const updateConvo=await Conversation.findOneAndUpdate({_id:'6463838d528c168ab4029939'},{ $inc: { count: 1 } });
     console.log(data);

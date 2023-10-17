@@ -12,9 +12,9 @@ router.post('/', async (req, res) => {
   try {
     const job = new Job(req.body);
     await job.save();
-    res.status(201).json(job);
+    res.status(201).json({job:job,message:"Success"});
   } catch (error) {
-    res.status(400).json(error);
+    res.status(400).json({message:"Something went wrong!"});
   }
 });
 // Get all jobs
@@ -33,10 +33,13 @@ router.get('/popular', async (req, res) => {
     let temp = [];
     for (let job of jobs) {
       let poster = await Recruiter.findOne({ _id: job.company_id }).exec();
-      let temp2=job.toObject();
-      poster.password='';
-      temp2.companyData = poster.toObject();
-      temp.push(temp2);
+      if(poster){
+        let temp2=job.toObject();
+        poster.password='';
+        temp2.companyData = poster.toObject();
+        temp.push(temp2);
+      }
+    
     }
     res.status(200).json({ message: "Success", jobs: temp });
   } catch (error) {
@@ -58,10 +61,13 @@ router.get('/recommended/:id',async(req,res)=>{
    let temp=[];
    for (let jobn of matchingSkills) {
     let poster = await Recruiter.findOne({ _id: jobn.company_id }).exec();
-    let temp2=jobn.toObject();
+    if(poster){
+      let temp2=jobn.toObject();
     poster.password='';
     temp2.companyData =await poster.toObject();
     temp.push(temp2);
+    }
+    
   }
    console.log(await matchingSkills)
     res.status(200).json({message:'Success',jobs:temp});
@@ -76,10 +82,13 @@ router.get('/recent', async (req, res) => {
     let temp = [];
     for (let job of jobs) {
       let poster = await Recruiter.findOne({ _id: job.company_id }).exec();
-      let temp2=job.toObject();
+      if(poster){
+        let temp2=job.toObject();
       poster.password='';
       temp2.companyData = poster.toObject();
       temp.push(temp2);
+      }
+      
     }
     res.status(200).json({ message: "Success", jobs: temp });
   } catch (error) {
@@ -112,28 +121,38 @@ router.get('/:id', async (req, res) => {
     if (!job) {
       return res.status(404).json();
     }
-    res.send(job);
+    res.status(200).json({message:'Success',job,job});
   } catch (error) {
     res.status(500).json(error);
   }
 });
+//job-View (Simple)
+router.get('/view/:id',async(req,res)=>{
+  try{
+    const job=await Job.findByIdAndUpdate(req.params.id,{$inc:{jobViews:1}});
+    return res.status(200).json({message:"Success"})
+  }catch(err){
+    return res.status(500).json({message:"Went south"})
+  }
+})
 // Update a job by ID
 router.patch('/:id', async (req, res) => {
+ 
   const updates = Object.keys(req.body);
-  const allowedUpdates = ['title', 'description', 'category', 'type', 'job_posted_date', 'job_expiry_date', 'company_id', 'location', 'skills', 'salary', 'job_applications'];
+  const allowedUpdates = ['title', 'designation','description', 'category', 'type','benefits', 'job_posted_date', 'job_expiry_date', 'company_id', 'location', 'skills', 'salary', 'job_applications'];
   const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
   if (!isValidOperation) {
-    return res.status(400).json({ error: 'Invalid updates!' });
+    return res.status(400).json({ message: 'Invalid updates!' });
   }
   try {
     const job = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!job) {
-      return res.status(404).json();
+      return res.status(404).json({message:'Not Found'});
     }
-    res.send(job);
+    res.status(200).json({job:job,message:'Success'});
   } catch (error) {
-    res.status(400).json(error);
+    res.status(400).json({message:'Something went wrong'});
   }
 });
 //get saved job  per canddate
@@ -157,10 +176,13 @@ router.get('/savedJobs/:id',async (req,res)=>{
     let temp=[];
     for (let jobn of jobs) {
      let poster = await Recruiter.findOne({ _id: jobn.company_id }).exec();
-     let temp2=jobn.toObject();
+     if (poster){
+      let temp2=jobn.toObject();
      poster.password='';
      temp2.companyData =await poster.toObject();
      temp.push(temp2);
+     }
+     
    }
     return res.status(200).json({jobs:temp,message:'Success'})
   }
@@ -189,10 +211,53 @@ router.get('/appliedJobs/:id',async (req,res)=>{
     let temp=[];
     for (let jobn of jobs) {
      let poster = await Recruiter.findOne({ _id: jobn.company_id }).exec();
-     let temp2=jobn.toObject();
-     poster.password='';
-     temp2.companyData =await poster.toObject();
-     temp.push(temp2);
+     if(poster){
+      let temp2=jobn.toObject();
+      poster.password='';
+      temp2.companyData =await poster.toObject();
+      temp.push(temp2);
+     }
+
+   }
+    return res.status(200).json({jobs:temp,message:'Success'})
+  }
+  else{
+   return res.status(404).json({jobs:[],message:"Not found"})
+  }
+})
+//Candidate requests for accepted jobs
+router.get('/acceptedJobs/:id',async (req,res)=>{
+  let user;
+  try{
+  user=await Candidate.findById(req.params.id);
+  }catch(error){
+    return res.status(404).json({message:'Not found'})
+  }
+ 
+  let jobDetail;
+  let jobs=[]
+  if(user && user.appliedJobs[0]){
+    
+    await Promise.all(user.appliedJobs.map(async job=>{
+      jobDetail=await Job.findById(job);
+      
+      jobs.push(await jobDetail);
+    }))
+    let temp=[];
+    for (let jobn of jobs) {
+      let res=jobn.toObject();
+      let application=res.job_applications.filter(app=>app.applicant_id==req.params.id);
+      if(application && application[0].application_status=="Accepted"){
+        let poster = await Recruiter.findOne({ _id: jobn.company_id }).exec();
+     if(poster){
+      let temp2=jobn.toObject();
+      poster.password='';
+      temp2.companyData =await poster.toObject();
+      temp.push(temp2);
+     }
+      }
+     
+
    }
     return res.status(200).json({jobs:temp,message:'Success'})
   }
@@ -217,10 +282,23 @@ router.post('/jobApply/:id',async(req,res)=>{
       return res.status(500).json({message:'Something went wrong!'});
     }
   }else{
-    console.log("yeta aaxa")
+  
     return res.status(300).json({message:"Already applied"});
   }
   
+})
+//find posted jobs by company_id
+router.get('/jobsByCompany/:id',async(req,res)=>{
+  try{
+    const jobs=await Job.find({company_id:req.params.id});
+    if(jobs[0]){
+      return res.status(200).json({message:"Success",jobs:jobs})
+    }else{
+      res.status(400).json({message:"Not Found",jobs:[]});
+    }
+  } catch(error){
+    res.status(500).json({message:"Something went wrong.",jobs:[]})
+  }
 })
 // Delete a job by ID
 router.delete('/:id', async (req, res) => {
@@ -229,9 +307,103 @@ router.delete('/:id', async (req, res) => {
     if (!job) {
       return res.status(404).send();
     }
-    res.status(200).json(job);
+    res.status(200).json({job:job,message:'Success'});
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({message:"Something went wrong"});
   }
 });
+router.post('/acceptRequest',async(req,res)=>{
+  try{
+    const jobId=req.body.job_id;
+    const applicantId=req.body.applicant_id;
+    const job= await Job.updateOne({
+      _id: jobId,
+      job_applications: {
+        $elemMatch: {
+          applicant_id: applicantId,
+        },
+      },
+    }, {
+      $set: {
+        "job_applications.$.application_status": "Accepted",
+      },
+    });
+    if(!job){
+      return res.status(404).json({message:"Not Found"});
+    }
+    else{
+      return res.status(200).json({message:"Success"});
+    }
+  }catch {
+    return res.status(500).json({message:"Internal Server Error"});
+  }
+})
+router.post('/rejectRequest',async(req,res)=>{
+  try{
+    const jobId=req.body.job_id;
+    const applicantId=req.body.applicant_id;
+    const job= await Job.updateOne({
+      _id: jobId,
+      job_applications: {
+        $elemMatch: {
+          applicant_id: applicantId,
+        },
+      },
+    }, {
+      $set: {
+        "job_applications.$.application_status": "Rejected",
+      },
+    });
+    if(!job){
+      return res.status(404).json({message:"Not Found"});
+    }
+    else{
+      return res.status(200).json({message:"Success"});
+    }
+  }catch {
+    return res.status(500).json({message:"Internal Server Error"});
+  }
+})
+router.get('/category/:category',async(req,res)=>{
+  const jobs=await Job.find({category:req.params.category});
+  let temp=[];
+  for (let jobn of jobs) {
+   let poster = await Recruiter.findOne({ _id: jobn.company_id }).exec();
+   if (poster){
+    let temp2=jobn.toObject();
+   poster.password='';
+   temp2.companyData =await poster.toObject();
+   temp.push(temp2);
+   }}
+  return res.status(200).json({jobs:temp,message:"Success"});
+  })
+  router.get('/search/:search',async(req,res)=>{
+    let searchTerm=req.params.search;
+    try {
+      const results = await Job.find({
+          $text: {
+              $search: searchTerm,
+              $caseSensitive: false // Set to true for case-sensitive search
+          }
+      });
+      let temp=[];
+      for (let jobn of results) {
+       let poster = await Recruiter.findOne({ _id: jobn.company_id }).exec();
+       if(poster){
+        let temp2=jobn.toObject();
+        poster.password='';
+        temp2.companyData =await poster.toObject();
+        temp.push(temp2);
+       }
+      }
+      if(results[0]){
+        return res.status(200).json({message:"Success",jobs:temp})
+      }else{
+        return res.status(404).json({message:"Nothing Found",jobs:temp})
+      }
+      
+  } catch (error) {
+      return res.status(500).json({message:"Server Error",jobs:[]});
+  }
+})
 module.exports = router;

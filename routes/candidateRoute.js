@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt=require('bcrypt');
 const Candidate=require('../models/candidate')
-
+const Recruiter=require('../models/recruiter')
 Candidate.syncIndexes();
 function validateEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -27,7 +27,7 @@ function validatePassword(password) {
 }
 // Create a new candidate
 router.post('/', async (req, res) => {
-  // try {
+   try {
       let em=validateEmail(req.body.email);
       let na=validateName(req.body.name);
       let pa=validatePassword(req.body.password);
@@ -44,16 +44,20 @@ router.post('/', async (req, res) => {
        res.status(300).send(pa);
        return;
     }
-   
+   let can= await Candidate.findOne({email:req.body.email});
+   let can2= await Recruiter.findOne({email:req.body.email});
+    if(can || can2){
+      return res.status(300).json({message:'User already exists'})
+    }
     const candidate = new Candidate(req.body);
     candidate.password=await bcrypt.hash(candidate.password,12);
     await candidate.save();
     console.log("New Candidate Created")
-    res.status(201).send(candidate);
+    res.status(201).json({message:"Success"});
 
-  // } catch (error) {
-  //   res.status(400).send({message:"Error"});
-  // }
+  } catch (error) {
+    res.status(400).send({message:"Error"});
+  }
 });
 
 // Get all candidates
@@ -71,11 +75,11 @@ router.get('/:id', async (req, res) => {
   try {
     const candidate = await Candidate.findById(req.params.id);
     if (!candidate) {
-      return res.status(404).send();
+      return res.status(404).json({message:"Not Found"});
     }
-    res.send(candidate);
+    res.status(200).json({message:"Success",candidate:candidate});
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).json({message:"Internal Server Error"});
   }
 });
 //update saved jobs
@@ -110,16 +114,16 @@ router.patch('/:id', async (req, res) => {
   const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
 
   if (!isValidOperation) {
-    return res.status(400).send({ error: 'Invalid updates!' });
+    return res.status(400).json({ message: 'Invalid updates!' });
   }
   try {
     const candidate = await Candidate.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!candidate) {
       return res.status(404).send({message:"Error"});
     }
-    res.send({user:candidate,message:"Success"});
+    res.status(200).json({user:candidate,message:"Success"});
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).json({message:"Server Error"});
   }
 });
 // Delete a candidate by ID

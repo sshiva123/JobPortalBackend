@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt=require('bcrypt');
 const Recruiter = require('../models/recruiter');
-
+const Candidate=require('../models/candidate')
 function validateEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -26,7 +26,6 @@ function validatePassword(password) {
 
   if (!passwordRegex.test(password)) {
     return  {"message":"Password must be at least 8 characters long"};
-    
   }
 
   return {"message":"OK"};
@@ -49,12 +48,17 @@ router.post('/', async (req, res) => {
     console.log(pa);
     return res.status(300).send(pa);
   }
+ let can= await Candidate.findOne({email:req.body.email});
+   let can2= await Recruiter.findOne({email:req.body.email});
+  if(can || can2){
+    return res.status(300).json({message:'User already exists'})
+  }
     const recruiter = new Recruiter(req.body);
     recruiter.password=await bcrypt.hash(recruiter.password,12);
     await recruiter.save();
-    res.status(201).send(recruiter);
+    res.status(201).json({recruiter:recruiter,message:"Success"});
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).json({message:"Internal Server Error"});
   }
 });
 
